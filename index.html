@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>순발력 연타 웹게임</title>
+  <title>극한의 연타 웹게임</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #eef1eb; color: #17241c; font-family: system-ui, "Malgun Gothic", sans-serif; }
@@ -12,25 +12,31 @@
     h1 { margin: 0 0 16px; font-size: clamp(24px, 5vw, 36px); }
     
     /* 스테이지 및 디스플레이 영역 */
-    #stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; margin: 20px 0; padding: 20px; background: #f3f5f1; border: 1px solid #d8ded7; border-radius: 8px; text-align: center; position: relative; overflow: hidden; }
+    #stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; margin: 20px 0; padding: 24px; background: #f3f5f1; border: 1px solid #d8ded7; border-radius: 8px; text-align: center; position: relative; overflow: hidden; }
     #status-bar { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 12px; }
-    #timer-bar { width: 100%; height: 8px; background: #ddd; margin-bottom: 16px; border-radius: 4px; overflow: hidden; }
-    #timer-fill { height: 100%; width: 100%; background: #e74c3c; transition: width 0.1s linear; }
+    #timer-bar { width: 100%; height: 10px; background: #ddd; margin-bottom: 16px; border-radius: 5px; overflow: hidden; }
+    #timer-fill { height: 100%; width: 100%; background: #e74c3c; transition: width 0.05s linear; }
 
     /* 모션 비주얼 */
-    .visual-box { height: 80px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; position: relative; margin-bottom: 12px; }
+    .visual-box { height: 70px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; position: relative; margin-bottom: 8px; }
     .falling-phone { transition: transform 0.1s ease; }
     .traffic-light { display: flex; gap: 8px; background: #333; padding: 6px 12px; border-radius: 20px; font-size: 24px; }
-    .light { opacity: 0.3; }
-    .light.active { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
 
-    /* 키보드 그래픽 */
-    .keyboard-preview { display: flex; flex-direction: column; gap: 6px; background: #222; padding: 12px; border-radius: 8px; margin-top: 10px; }
-    .kb-row { display: flex; gap: 6px; justify-content: center; }
-    .key { width: 36px; height: 36px; background: #444; color: white; display: grid; place-items: center; border-radius: 4px; font-weight: bold; font-size: 14px; border: 1px solid #555; }
-    .key.space { width: 140px; }
-    .key.target { background: #ff9800; color: #000; font-size: 18px; border-color: #e65100; animation: pulse 0.5s infinite alternate; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+    /* 목표 키 대형 디스플레이 */
+    .target-key-box {
+      margin: 12px 0;
+      padding: 12px 28px;
+      background: #222;
+      color: #ff9800;
+      font-size: 32px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: 3px solid #ff9800;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      letter-spacing: 1px;
+      animation: pulse 0.6s infinite alternate;
+    }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
     #message { margin: 12px 0 0; font-size: 18px; font-weight: bold; color: #00462a; }
     
@@ -46,9 +52,9 @@
 </head>
 <body>
   <main>
-    <p class="label">KING · 순발력 키보드 게임</p>
-    <h1>위기 탈출! 순발력 연타 게임</h1>
-    <p>화면에 지정되는 <b>주황색 키</b>를 제한 시간 안에 지정된 횟수만큼 누르세요!</p>
+    <p class="label">KING · 광속 연타 웹게임</p>
+    <h1>랜덤 키 극한 연타 게임</h1>
+    <p>지정되는 무작위 키(특수키 포함)를 제한 시간 내에 목표 횟수만큼 광속으로 연타하세요!</p>
 
     <section id="stage" aria-label="게임 진행 화면">
       <div id="status-bar">
@@ -62,26 +68,8 @@
         <span>🎮</span>
       </div>
 
-      <!-- 키보드 레이아웃 시각화 -->
-      <div class="keyboard-preview">
-        <div class="kb-row">
-          <div class="key" data-key="Q">Q</div>
-          <div class="key" data-key="W">W</div>
-          <div class="key" data-key="E">E</div>
-          <div class="key" data-key="R">R</div>
-          <div class="key" data-key="T">T</div>
-        </div>
-        <div class="kb-row">
-          <div class="key" data-key="A">A</div>
-          <div class="key" data-key="S">S</div>
-          <div class="key" data-key="D">D</div>
-          <div class="key" data-key="F">F</div>
-          <div class="key" data-key="G">G</div>
-        </div>
-        <div class="kb-row">
-          <div class="key space" data-key=" ">SPACE</div>
-        </div>
-      </div>
+      <!-- 누르고 연타해야 할 키 표시 -->
+      <div class="target-key-box" id="target-key-display">READY</div>
 
       <p id="message">시작 버튼을 눌러 게임을 시작하세요!</p>
     </section>
@@ -92,16 +80,16 @@
     </div>
 
     <section class="guide">
-      <h2>스테이지 구성</h2>
+      <h2>스테이지 구성 및 가이드</h2>
       <ul>
-        <li><b>1단계:</b> 떨어지는 휴대폰 잡기 (제한시간 3초 / 키 5회 연타)</li>
-        <li><b>2단계:</b> 5초 남은 신호등 건너기 (제한시간 5초 / 키 10회 연타)</li>
+        <li><b>1단계:</b> 떨어지는 휴대폰 잡기 (제한시간 8초 / 지정 키 50회 연타)</li>
+        <li><b>2단계:</b> 5초 남은 신호등 건너기 (제한시간 12초 / 지정 키 100회 연타)</li>
+        <li>F1, Delete, Enter, Tab, Shift, ~, @, $ 등 브라우저 기본 기능키 조작이 자동 방지되어 안전하게 연타할 수 있습니다.</li>
       </ul>
     </section>
   </main>
 
   <script>
-    // 상태 및 엘리먼트 정의
     const message = document.getElementById('message');
     const startBtn = document.getElementById('start');
     const restartBtn = document.getElementById('restart');
@@ -109,49 +97,57 @@
     const countInfo = document.getElementById('count-info');
     const timerFill = document.getElementById('timer-fill');
     const visualArea = document.getElementById('visual-area');
-    const keys = document.querySelectorAll('.key');
+    const targetKeyDisplay = document.getElementById('target-key-display');
 
-    const AVAILABLE_KEYS = ['Q', 'W', 'E', 'R', 'T', 'A', 'S', 'D', 'F', 'G', ' '];
+    // 선택될 수 있는 무작위 키 목록 (표시용 이름과 비교용 e.key값 매핑)
+    const CANDIDATE_KEYS = [
+      { name: 'F1', key: 'F1' },
+      { name: 'Delete', key: 'Delete' },
+      { name: 'Enter', key: 'Enter' },
+      { name: 'Tab', key: 'Tab' },
+      { name: 'Shift', key: 'Shift' },
+      { name: '~ (Tilde)', key: '~' },
+      { name: '$(Dollar)', key: '$' },
+      { name: '@ (At)', key: '@' },
+      { name: 'Space', key: ' ' },
+      { name: 'Backspace', key: 'Backspace' },
+      { name: 'A', key: 'a' },
+      { name: 'S', key: 's' },
+      { name: 'D', key: 'd' },
+      { name: 'F', key: 'f' },
+      { name: 'Z', key: 'z' },
+      { name: 'X', key: 'x' },
+      { name: 'C', key: 'c' },
+      { name: '↑ (위쪽 화살표)', key: 'ArrowUp' },
+      { name: '↓ (아래쪽 화살표)', key: 'ArrowDown' }
+    ];
 
     let currentStage = 0;
-    let targetKey = '';
+    let targetObj = null;
     let remainingClicks = 0;
     let timeLimit = 0;
-    let timerId = null;
     let intervalId = null;
     let timeRemaining = 0;
     let isPlaying = false;
 
-    // 스테이지 설정
     const STAGES = [
       {
         title: "STAGE 1: 떨어지는 휴대폰 잡기! 📱",
-        time: 3.0,
-        clicks: 5,
+        time: 8.0,
+        clicks: 50,
         visual: () => `<div class="falling-phone" id="phone">📱</div>`
       },
       {
         title: "STAGE 2: 5초 남은 신호등 건너기! 🚦",
-        time: 5.0,
-        clicks: 10,
-        visual: () => `<div class="traffic-light"><span class="light active" style="color:#2ecc71">🟢</span></div> 🚶‍♂️`
+        time: 12.0,
+        clicks: 100,
+        visual: () => `<div class="traffic-light"><span class="light" style="color:#2ecc71">🟢</span></div> 🚶‍♂️`
       }
     ];
 
-    function getRandomKey() {
-      const idx = Math.floor(Math.random() * AVAILABLE_KEYS.length);
-      return AVAILABLE_KEYS[idx];
-    }
-
-    function setTargetKey(key) {
-      targetKey = key;
-      keys.forEach(k => {
-        if (k.dataset.key === targetKey) {
-          k.classList.add('target');
-        } else {
-          k.classList.remove('target');
-        }
-      });
+    function getRandomKeyObj() {
+      const idx = Math.floor(Math.random() * CANDIDATE_KEYS.length);
+      return CANDIDATE_KEYS[idx];
     }
 
     function startStage(stageIdx) {
@@ -166,16 +162,17 @@
       countInfo.textContent = `남은 횟수: ${remainingClicks}`;
       visualArea.innerHTML = stage.visual();
       
-      const nextKey = getRandomKey();
-      setTargetKey(nextKey);
+      // 스테이지마다 무작위 키 1개 지정
+      targetObj = getRandomKeyObj();
+      targetKeyDisplay.textContent = targetObj.name;
 
-      message.textContent = `키 [ ${nextKey === ' ' ? 'SPACE' : nextKey} ] 를 빠르게 누르세요!`;
+      message.textContent = `[ ${targetObj.name} ] 키를 제한 시간 안에 ${remainingClicks}번 연타하세요!`;
       
-      // 타이머 시작
-      const updateInterval = 50; // ms
       timerFill.style.width = '100%';
 
       clearInterval(intervalId);
+      const updateInterval = 50; // ms
+
       intervalId = setInterval(() => {
         timeRemaining -= (updateInterval / 1000);
         const percent = Math.max(0, (timeRemaining / timeLimit) * 100);
@@ -185,7 +182,7 @@
         if (currentStage === 0) {
           const phone = document.getElementById('phone');
           if (phone) {
-            const dropAmount = (1 - (timeRemaining / timeLimit)) * 40;
+            const dropAmount = (1 - (timeRemaining / timeLimit)) * 45;
             phone.style.transform = `translateY(${dropAmount}px)`;
           }
         }
@@ -198,19 +195,17 @@
     }
 
     function handleKeyPress(e) {
-      if (!isPlaying) return;
+      if (!isPlaying || !targetObj) return;
 
-      const pressedKey = e.key.toUpperCase();
-      if (pressedKey === targetKey || (e.key === ' ' && targetKey === ' ')) {
+      // 비교 시 대소문자 차이 흡수 (알파벳 등)
+      const inputKey = e.key.toLowerCase();
+      const expectedKey = targetObj.key.toLowerCase();
+
+      if (inputKey === expectedKey) {
         remainingClicks--;
         countInfo.textContent = `남은 횟수: ${remainingClicks}`;
 
-        if (remainingClicks > 0) {
-          // 다음 입력할 무작위 키 선택
-          setTargetKey(getRandomKey());
-          message.textContent = `키 [ ${targetKey === ' ' ? 'SPACE' : targetKey} ] 를 누르세요!`;
-        } else {
-          // 스테이지 성공
+        if (remainingClicks <= 0) {
           clearInterval(intervalId);
           if (currentStage + 1 < STAGES.length) {
             message.textContent = "성공! 다음 스테이지로 이동합니다...";
@@ -226,22 +221,23 @@
 
     function gameOver(isWin) {
       isPlaying = false;
-      setTargetKey('');
       clearInterval(intervalId);
 
       if (isWin) {
-        stageTitle.textContent = "🎉 미션 완료!";
-        message.textContent = "축하합니다! 휴대폰도 구하고 신호등도 안전하게 건넜습니다!";
+        stageTitle.textContent = "🎉 모든 미션 성공!";
+        message.textContent = "축하합니다! 엄청난 연타 속도로 모든 위기를 탈출했습니다!";
         visualArea.innerHTML = "🏆✨";
+        targetKeyDisplay.textContent = "CLEAR!";
       } else {
-        stageTitle.textContent = "💥 실패!";
+        stageTitle.textContent = "💥 미션 실패!";
         if (currentStage === 0) {
-          message.textContent = "휴대폰이 바닥에 떨어져 깨졌습니다!";
+          message.textContent = "휴대폰이 바닥에 떨어져 산산조각났습니다!";
           visualArea.innerHTML = "📱💥";
         } else {
-          message.textContent = "신호등 불이 빨간색으로 바뀌었습니다!";
+          message.textContent = "신호등이 빨간불로 바뀌었습니다!";
           visualArea.innerHTML = "🚦🔴";
         }
+        targetKeyDisplay.textContent = "FAIL";
       }
 
       startBtn.disabled = true;
@@ -262,12 +258,13 @@
       startStage(0);
     });
 
+    // 전체 키 입력 이벤트 차단 및 연타 처리
     window.addEventListener('keydown', (e) => {
-      // 스페이스바 누를 때 페이지 스크롤 방지
-      if (e.key === ' ' && isPlaying) {
+      if (isPlaying) {
+        // F1(도움말), Tab, Space, Enter, Delete 등의 브라우저 기본 동작 차단
         e.preventDefault();
+        handleKeyPress(e);
       }
-      handleKeyPress(e);
     });
   </script>
 </body>
