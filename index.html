@@ -3,98 +3,100 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>지옥의 빵집 알바 : 극한의 광속 연타</title>
+  <title>빵집 알바 : 민첩하게 돈을 벌자~!</title>
   <style>
     * { box-sizing: border-box; }
     body { 
       margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; 
-      background: #2b1810; color: #fff8f0; font-family: system-ui, "Malgun Gothic", sans-serif; 
+      background: #1e110a; color: #fff8f0; font-family: system-ui, "Malgun Gothic", sans-serif; 
     }
     main { 
       width: min(100%, 680px); padding: clamp(20px, 4vw, 36px); 
-      border: 3px solid #d4a373; border-radius: 16px; background: #3a2318; 
-      box-shadow: 0 12px 32px rgba(0,0,0,0.5); 
+      border: 3px solid #d4a373; border-radius: 16px; background: #2c1810; 
+      box-shadow: 0 12px 32px rgba(0,0,0,0.6); 
     }
-    .label { margin: 0 0 8px; color: #faedcd; font-size: 14px; font-weight: 700; letter-spacing: 1px; }
-    h1 { margin: 0 0 16px; font-size: clamp(24px, 5vw, 34px); color: #f4a261; text-shadow: 1px 1px 2px #000; }
+    .label { margin: 0 0 8px; color: #faedcd; font-size: 14px; font-weight: 700; }
+    h1 { margin: 0 0 16px; font-size: clamp(24px, 5vw, 34px); color: #f4a261; }
     
-    /* 스테이지 영역 */
     #stage { 
       display: flex; flex-direction: column; align-items: center; justify-content: center; 
-      min-height: 320px; margin: 16px 0; padding: 20px; 
-      background: #23120b; border: 2px solid #523121; border-radius: 12px; 
+      min-height: 360px; margin: 16px 0; padding: 20px; 
+      background: #1a0d07; border: 2px solid #523121; border-radius: 12px; 
       text-align: center; position: relative; overflow: hidden; 
     }
     
-    #status-bar { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #faedcd; }
+    #status-bar { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 17px; margin-bottom: 10px; color: #faedcd; }
     
-    /* 타이머 & 게이지 */
-    .bar-container { width: 100%; height: 12px; background: #44281d; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
-    #timer-fill { height: 100%; width: 100%; background: #e74c3c; transition: width 0.05s linear; }
-    #progress-fill { height: 100%; width: 0%; background: #2ecc71; transition: width 0.05s ease; }
+    .bar-container { width: 100%; height: 10px; background: #3a2318; border-radius: 5px; overflow: hidden; margin-bottom: 10px; }
+    #timer-fill { height: 100%; width: 100%; background: #e74c3c; transition: width 0.04s linear; }
+    #progress-fill { height: 100%; width: 0%; background: #2ecc71; transition: width 0.04s ease; }
 
-    /* 비주얼 및 이미지 표시 영역 */
     .visual-card {
-      width: 100%; height: 110px; display: flex; align-items: center; justify-content: center;
-      background: #341c13; border-radius: 10px; border: 1px dashed #d4a373;
-      margin-bottom: 12px; position: relative; overflow: hidden;
+      width: 100%; height: 100px; display: flex; align-items: center; justify-content: center;
+      background: #28140c; border-radius: 10px; border: 1px dashed #d4a373; margin-bottom: 12px;
     }
-    .visual-icon { font-size: 64px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); transition: transform 0.05s ease; }
+    .visual-icon { font-size: 56px; transition: transform 0.05s ease; }
     .hit-effect { transform: scale(1.25) rotate(-5deg) !important; }
 
-    /* 목표 키 표시 UI */
     .target-key-box {
-      margin: 8px 0; padding: 10px 28px; background: #e76f51; color: #ffffff;
+      margin: 6px 0; padding: 10px 28px; background: #e76f51; color: #ffffff;
       font-size: 32px; font-weight: bold; border-radius: 8px; border: 3px solid #f4a261;
-      box-shadow: 0 4px 14px rgba(231, 111, 81, 0.4); text-transform: uppercase;
-      animation: pulse 0.5s infinite alternate;
+      animation: pulse 0.4s infinite alternate;
     }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.04); } }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.03); } }
 
-    #message { margin: 10px 0 0; font-size: 17px; font-weight: bold; color: #faedcd; }
+    #message { margin: 10px 0 0; font-size: 16px; font-weight: bold; color: #faedcd; }
     
-    /* 버튼 */
+    #result-view { display: none; width: 100%; flex-direction: column; align-items: center; }
+    .result-img { 
+      width: 100%; max-width: 380px; height: 230px; border-radius: 12px; 
+      margin-bottom: 12px; object-fit: contain; background: #000; border: 2px solid #faedcd; 
+    }
+    .revenue-text { font-size: 28px; color: #ffca28; font-weight: bold; margin: 8px 0; }
+
     .buttons { display: flex; gap: 12px; margin-top: 16px; }
     button { 
       flex: 1; padding: 14px 20px; border: none; border-radius: 8px; 
       background: #e76f51; color: white; font: inherit; cursor: pointer; 
-      font-weight: bold; font-size: 16px; transition: background 0.2s; 
+      font-weight: bold; font-size: 16px; 
     }
-    button:hover:not(:disabled) { background: #f4a261; }
     #restart { background: #523121; color: #faedcd; }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .guide { margin-top: 20px; padding: 16px; border: 1px solid #523121; background: #23120b; border-radius: 8px; }
-    .guide h2 { margin: 0 0 8px; font-size: 16px; color: #f4a261; }
-    .guide ol { margin: 0; padding-left: 20px; line-height: 1.5; font-size: 13px; color: #ccc; }
+    .guide { margin-top: 20px; padding: 16px; border: 1px solid #523121; background: #1a0d07; border-radius: 8px; }
+    .guide h2 { margin: 0 0 8px; font-size: 15px; color: #f4a261; }
+    .guide ul { margin: 0; padding-left: 20px; line-height: 1.5; font-size: 13px; color: #ccc; }
   </style>
 </head>
 <body>
   <main>
     <p class="label">🍞 BREAD BAKERY TYCOON</p>
-    <h1>지옥의 빵집 : 광속 연타 알바</h1>
-    <p>손님이 몰려듭니다! 화면에 나타난 지정 키를 <b>제한 시간 안에 광속으로 연타</b>하세요!</p>
+    <h1>빵집 : 하루 매출 정산</h1>
+    <p>총 6개의 미션이 연달아 진행됩니다. 제한시간 동안 연타에 성공한 개수로 하루 매출이 결정됩니다!</p>
 
-    <section id="stage" aria-label="게임 진행 화면">
-      <div id="status-bar">
-        <span id="stage-title">영업 준비 중</span>
-        <span id="count-info">남은 횟수: -</span>
+    <section id="stage">
+      <div id="game-view" style="width: 100%;">
+        <div id="status-bar">
+          <span id="stage-title">영업 준비 중</span>
+          <span id="count-info">남은 횟수: -</span>
+        </div>
+        <div class="bar-container"><div id="timer-fill"></div></div>
+        <div class="bar-container"><div id="progress-fill"></div></div>
+
+        <div class="visual-card">
+          <div class="visual-icon" id="visual-icon">🏪</div>
+        </div>
+
+        <div class="target-key-box" id="target-key-display">READY</div>
       </div>
-      
-      <!-- 제한시간 바 -->
-      <div class="bar-container"><div id="timer-fill"></div></div>
-      <!-- 진행도 바 -->
-      <div class="bar-container"><div id="progress-fill"></div></div>
 
-      <!-- 시각 연출 영역 (이미지/이모지) -->
-      <div class="visual-card">
-        <div class="visual-icon" id="visual-icon">🏪</div>
+      <div id="result-view">
+        <img id="result-image" class="result-img" src="0.png" alt="결과 이미지">
+        <div id="result-title" style="font-size: 20px; font-weight: bold;"></div>
+        <div class="revenue-text" id="revenue-display">0원</div>
       </div>
 
-      <!-- 목표 입력 키 -->
-      <div class="target-key-box" id="target-key-display">READY</div>
-
-      <p id="message">[출근하기] 버튼을 눌러 업무를 시작하세요!</p>
+      <p id="message">[출근하기] 버튼을 누르면 연속 미션이 시작됩니다!</p>
     </section>
 
     <div class="buttons">
@@ -103,19 +105,26 @@
     </div>
 
     <section class="guide">
-      <h2>오늘의 지옥 업무 일정 (6단계)</h2>
-      <ol>
-        <li>📦 <b>물류 정리:</b> 3.5초 / 35회 연타</li>
-        <li>🍞 <b>빵 굽기:</b> 4.0초 / 45회 연타</li>
-        <li>☕ <b>커피 내리기:</b> 4.2초 / 50회 연타</li>
-        <li>🛍️ <b>빵 포장:</b> 3.8초 / 45회 연타</li>
-        <li>💳 <b>손님 계산:</b> 4.8초 / 60회 연타</li>
-        <li>♻️ <b>마감 분리수거:</b> 5.0초 / 70회 연타</li>
-      </ol>
+      <h2>📊 하루 매출 정산표</h2>
+      <ul>
+        <li><b>0개 성공 (0.png):</b> 0원</li>
+        <li><b>1개 성공 (1.png):</b> 10원</li>
+        <li><b>2개 성공 (2.png):</b> 1000원</li>
+        <li><b>3개 성공 (3.png):</b> 100,000원</li>
+        <li><b>4개 성공 (4.png):</b> 500,000원</li>
+        <li><b>5개 성공 (5.png):</b> 1,000,000원</li>
+        <li><b>6개 성공 (6.png):</b> 1,000,000,000원 (10억!!!!!)</li>
+      </ul>
     </section>
   </main>
 
   <script>
+    const gameView = document.getElementById('game-view');
+    const resultView = document.getElementById('result-view');
+    const resultImage = document.getElementById('result-image');
+    const resultTitle = document.getElementById('result-title');
+    const revenueDisplay = document.getElementById('revenue-display');
+    
     const message = document.getElementById('message');
     const startBtn = document.getElementById('start');
     const restartBtn = document.getElementById('restart');
@@ -126,7 +135,16 @@
     const visualIcon = document.getElementById('visual-icon');
     const targetKeyDisplay = document.getElementById('target-key-display');
 
-    // 사용할 키 후보군 (e.key 기준 매핑)
+    const REVENUE_TABLE = {
+      0: "0원",
+      1: "10원",
+      2: "1000원",
+      3: "100,000원",
+      4: "500,000원",
+      5: "1,000,000원",
+      6: "1,000,000,000원 (10억원!!!!!)"
+    };
+
     const CANDIDATE_KEYS = [
       { display: 'F1', key: 'f1' },
       { display: 'DELETE', key: 'delete' },
@@ -145,21 +163,20 @@
       { display: 'Q', key: 'q' },
       { display: 'W', key: 'w' },
       { display: 'E', key: 'e' },
-      { display: 'R', key: 'r' },
-      { display: '↑ (위)', key: 'arrowup' },
-      { display: '↓ (아래)', key: 'arrowdown' }
+      { display: 'R', key: 'r' }
     ];
 
     const STAGES = [
-      { title: "미션 1: 📦 물류 정리", time: 3.5, clicks: 35, icon: "📦" },
-      { title: "미션 2: 🍞 빵 굽기", time: 4.0, clicks: 45, icon: "🍞" },
-      { title: "미션 3: ☕ 커피 내리기", time: 4.2, clicks: 50, icon: "☕" },
-      { title: "미션 4: 🛍️ 빵 포장하기", time: 3.8, clicks: 45, icon: "🛍️" },
-      { title: "미션 5: 💳 손님 계산하기", time: 4.8, clicks: 60, icon: "💳" },
-      { title: "미션 6: ♻️ 마감 분리수거", time: 5.0, clicks: 70, icon: "♻️" }
+      { title: "미션 1: 📦 물류 정리", time: 3.5, clicks: 10, icon: "📦" },
+      { title: "미션 2: 🍞 빵 굽기", time: 4.0, clicks: 15, icon: "🍞" },
+      { title: "미션 3: ☕ 커피 내리기", time: 4.2, clicks: 20, icon: "☕" },
+      { title: "미션 4: 🛍️ 빵 포장하기", time: 3.8, clicks: 30, icon: "🛍️" },
+      { title: "미션 5: 💳 손님 계산하기", time: 4.8, clicks: 30, icon: "💳" },
+      { title: "미션 6: ♻️ 마감 분리수거", time: 5.0, clicks: 40, icon: "♻️" }
     ];
 
     let currentStage = 0;
+    let successCount = 0;
     let targetObj = null;
     let totalClicksNeeded = 0;
     let remainingClicks = 0;
@@ -176,7 +193,7 @@
       currentStage = stageIdx;
       const stage = STAGES[stageIdx];
       
-      stageTitle.textContent = stage.title;
+      stageTitle.textContent = `${stage.title} (${currentStage + 1}/6)`;
       totalClicksNeeded = stage.clicks;
       remainingClicks = stage.clicks;
       timeLimit = stage.time;
@@ -188,13 +205,13 @@
       targetObj = getRandomKeyObj();
       targetKeyDisplay.textContent = targetObj.display;
 
-      message.textContent = `[ ${targetObj.display} ] 키를 제한 시간 내에 연타하세요!`;
+      message.textContent = `[ ${targetObj.display} ] 키를 연타!`;
       
       timerFill.style.width = '100%';
       progressFill.style.width = '0%';
 
       clearInterval(intervalId);
-      const updateInterval = 30; // 30ms 간격 업데이트
+      const updateInterval = 30;
 
       intervalId = setInterval(() => {
         timeRemaining -= (updateInterval / 1000);
@@ -203,13 +220,12 @@
 
         if (timeRemaining <= 0) {
           clearInterval(intervalId);
-          gameOver(false);
+          finishStage(false);
         }
       }, updateInterval);
     }
 
     function handleKeyPress(e) {
-      // 키 누르고 있기(Hold) 꼼수 방지
       if (e.repeat || !isPlaying || !targetObj) return;
 
       const inputKey = e.key.toLowerCase();
@@ -219,68 +235,4 @@
         remainingClicks--;
         countInfo.textContent = `남은 횟수: ${remainingClicks}`;
 
-        // 진행률 게이지 업데이트
         const progressPercent = ((totalClicksNeeded - remainingClicks) / totalClicksNeeded) * 100;
-        progressFill.style.width = `${progressPercent}%`;
-
-        // 타격 애니메이션 피드백
-        visualIcon.classList.add('hit-effect');
-        setTimeout(() => visualIcon.classList.remove('hit-effect'), 50);
-
-        if (remainingClicks <= 0) {
-          clearInterval(intervalId);
-          if (currentStage + 1 < STAGES.length) {
-            message.textContent = "성공! 다음 알림이 울립니다!";
-            setTimeout(() => startStage(currentStage + 1), 500);
-          } else {
-            gameOver(true);
-          }
-        }
-      }
-    }
-
-    function gameOver(isWin) {
-      isPlaying = false;
-      clearInterval(intervalId);
-
-      if (isWin) {
-        stageTitle.textContent = "🎉 완판 성공 & 퇴근!";
-        message.textContent = "축하합니다! 하루 일과를 마치고 최고 매출을 달성했습니다!";
-        visualIcon.textContent = "🏆";
-        targetKeyDisplay.textContent = "CLEAR";
-      } else {
-        stageTitle.textContent = "💥 매장 과부하 (실패)";
-        message.textContent = `${STAGES[currentStage].title} 실패! 손님들이 화가 났습니다.`;
-        visualIcon.textContent = "😭";
-        targetKeyDisplay.textContent = "FAIL";
-      }
-
-      startBtn.disabled = true;
-      restartBtn.disabled = false;
-      restartBtn.focus();
-    }
-
-    // 이벤트 연결
-    startBtn.addEventListener('click', () => {
-      isPlaying = true;
-      startBtn.disabled = true;
-      restartBtn.disabled = false;
-      startStage(0);
-    });
-
-    restartBtn.addEventListener('click', () => {
-      isPlaying = true;
-      startStage(0);
-    });
-
-    // 브라우저 기본 동작 차단 및 입력 감지
-    window.addEventListener('keydown', (e) => {
-      if (isPlaying) {
-        // 단축키/탭 이동 등 방지
-        e.preventDefault();
-        handleKeyPress(e);
-      }
-    });
-  </script>
-</body>
-</html>
