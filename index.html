@@ -3,89 +3,104 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>극한의 연타 웹게임</title>
+  <title>지옥의 빵집 알바 : 광속 연타</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #eef1eb; color: #17241c; font-family: system-ui, "Malgun Gothic", sans-serif; }
-    main { width: min(100%, 720px); padding: clamp(24px, 5vw, 48px); border: 1px solid #00462a; border-radius: 8px; background: white; }
-    .label { margin: 0 0 12px; color: #00462a; font-size: 14px; font-weight: 700; }
-    h1 { margin: 0 0 16px; font-size: clamp(24px, 5vw, 36px); }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #fdf8f5; color: #2c1810; font-family: system-ui, "Malgun Gothic", sans-serif; }
+    main { width: min(100%, 720px); padding: clamp(24px, 5vw, 40px); border: 2px solid #8b4513; border-radius: 12px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .label { margin: 0 0 8px; color: #8b4513; font-size: 14px; font-weight: 700; }
+    h1 { margin: 0 0 16px; font-size: clamp(24px, 5vw, 36px); color: #5c2c0c; }
     
     /* 스테이지 및 디스플레이 영역 */
-    #stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; margin: 20px 0; padding: 24px; background: #f3f5f1; border: 1px solid #d8ded7; border-radius: 8px; text-align: center; position: relative; overflow: hidden; }
-    #status-bar { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 12px; }
-    #timer-bar { width: 100%; height: 10px; background: #ddd; margin-bottom: 16px; border-radius: 5px; overflow: hidden; }
+    #stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; margin: 20px 0; padding: 24px; background: #fff8f0; border: 2px dashed #d2b48c; border-radius: 8px; text-align: center; position: relative; overflow: hidden; }
+    #status-bar { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #4a2306; }
+    #timer-bar { width: 100%; height: 12px; background: #e0d0c0; margin-bottom: 16px; border-radius: 6px; overflow: hidden; }
     #timer-fill { height: 100%; width: 100%; background: #e74c3c; transition: width 0.05s linear; }
 
-    /* 모션 비주얼 */
-    .visual-box { height: 70px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; position: relative; margin-bottom: 8px; }
-    .falling-phone { transition: transform 0.1s ease; }
-    .traffic-light { display: flex; gap: 8px; background: #333; padding: 6px 12px; border-radius: 20px; font-size: 24px; }
+    /* 알림 아이콘 비주얼 */
+    .visual-box { height: 80px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 56px; position: relative; margin-bottom: 8px; }
+    .alarm-badge {
+      position: absolute;
+      top: -5px;
+      right: 25%;
+      background: #e74c3c;
+      color: white;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-weight: bold;
+      animation: bounce 0.4s infinite alternate;
+    }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-6px); } }
 
     /* 목표 키 대형 디스플레이 */
     .target-key-box {
       margin: 12px 0;
-      padding: 12px 28px;
-      background: #222;
-      color: #ff9800;
-      font-size: 32px;
+      padding: 12px 32px;
+      background: #2c1810;
+      color: #ffb74d;
+      font-size: 36px;
       font-weight: bold;
-      border-radius: 8px;
-      border: 3px solid #ff9800;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 10px;
+      border: 3px solid #f57c00;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       letter-spacing: 1px;
-      animation: pulse 0.6s infinite alternate;
+      animation: pulse 0.4s infinite alternate;
     }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
 
-    #message { margin: 12px 0 0; font-size: 18px; font-weight: bold; color: #00462a; }
+    #message { margin: 12px 0 0; font-size: 18px; font-weight: bold; color: #8b4513; }
     
     .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-    button { padding: 12px 20px; border: 1px solid #00462a; border-radius: 4px; background: #00462a; color: white; font: inherit; cursor: pointer; font-weight: bold; }
-    #restart { background: white; color: #00462a; }
+    button { padding: 12px 24px; border: none; border-radius: 6px; background: #8b4513; color: white; font: inherit; cursor: pointer; font-weight: bold; font-size: 16px; }
+    #restart { background: #f5f5f5; color: #8b4513; border: 1px solid #8b4513; }
     button:disabled { opacity: .4; cursor: default; }
 
-    .guide { margin-top: 24px; padding: 20px; border: 1px solid #d8ded7; background: #f8faf6; border-radius: 6px; }
-    .guide h2 { margin: 0 0 8px; font-size: 18px; }
-    .guide ul { margin: 0; padding-left: 20px; line-height: 1.6; }
+    .guide { margin-top: 24px; padding: 18px; border: 1px solid #e0d0c0; background: #faf4ee; border-radius: 8px; }
+    .guide h2 { margin: 0 0 8px; font-size: 18px; color: #5c2c0c; }
+    .guide ol { margin: 0; padding-left: 20px; line-height: 1.6; font-size: 14px; }
   </style>
 </head>
 <body>
   <main>
-    <p class="label">KING · 광속 연타 웹게임</p>
-    <h1>랜덤 키 극한 연타 게임</h1>
-    <p>지정되는 무작위 키(특수키 포함)를 제한 시간 내에 목표 횟수만큼 광속으로 연타하세요!</p>
+    <p class="label">🍞 지옥의 빵집 하루 타이쿤</p>
+    <h1>긴급! 빵집 오픈 준비</h1>
+    <p>쉴 새 없이 밀려오는 6개의 업무 알림! 지정된 키를 <b>광속 연타</b>하여 하루를 무사히 마치세요!</p>
 
     <section id="stage" aria-label="게임 진행 화면">
       <div id="status-bar">
-        <span id="stage-title">준비 완료</span>
+        <span id="stage-title">영업 준비 중</span>
         <span id="count-info">남은 횟수: -</span>
       </div>
       <div id="timer-bar"><div id="timer-fill"></div></div>
 
       <!-- 게임 연출 아이콘/애니메이션 -->
       <div class="visual-box" id="visual-area">
-        <span>🎮</span>
+        <span>🏪</span>
       </div>
 
       <!-- 누르고 연타해야 할 키 표시 -->
       <div class="target-key-box" id="target-key-display">READY</div>
 
-      <p id="message">시작 버튼을 눌러 게임을 시작하세요!</p>
+      <p id="message">출근 버튼을 눌러 업무를 시작하세요!</p>
     </section>
 
     <div class="buttons">
-      <button id="start" type="button">게임 시작</button>
-      <button id="restart" type="button" disabled>다시 시작</button>
+      <button id="start" type="button">출근하기 (시작)</button>
+      <button id="restart" type="button" disabled>다시 도전</button>
     </div>
 
     <section class="guide">
-      <h2>스테이지 구성 및 가이드</h2>
-      <ul>
-        <li><b>1단계:</b> 떨어지는 휴대폰 잡기 (제한시간 8초 / 지정 키 50회 연타)</li>
-        <li><b>2단계:</b> 5초 남은 신호등 건너기 (제한시간 12초 / 지정 키 100회 연타)</li>
-        <li>F1, Delete, Enter, Tab, Shift, ~, @, $ 등 브라우저 기본 기능키 조작이 자동 방지되어 안전하게 연타할 수 있습니다.</li>
-      </ul>
+      <h2>오늘의 업무 일정 (총 6개 미션)</h2>
+      <ol>
+        <li>📦 <b>물류 정리:</b> 3.5초 내 40회 연타</li>
+        <li>🍞 <b>빵 굽기:</b> 4.0초 내 50회 연타</li>
+        <li>☕ <b>커피 내리기:</b> 4.5초 내 60회 연타</li>
+        <li>🛍️ <b>빵 포장:</b> 3.8초 내 50회 연타</li>
+        <li>💳 <b>손님 계산:</b> 5.0초 내 70회 연타</li>
+        <li>♻️ <b>분리수거:</b> 5.5초 내 80회 연타</li>
+      </ol>
+      <p style="margin-top:8px; font-size:12px; color:#a04000;">⚠️ 키를 꾹 누르고 있으면 인정되지 않습니다. 손가락을 직접 광속으로 떼었다 눌러야 합니다!</p>
     </section>
   </main>
 
@@ -99,7 +114,7 @@
     const visualArea = document.getElementById('visual-area');
     const targetKeyDisplay = document.getElementById('target-key-display');
 
-    // 선택될 수 있는 무작위 키 목록 (표시용 이름과 비교용 e.key값 매핑)
+    // 다양한 키 후보군
     const CANDIDATE_KEYS = [
       { name: 'F1', key: 'F1' },
       { name: 'Delete', key: 'Delete' },
@@ -115,11 +130,58 @@
       { name: 'S', key: 's' },
       { name: 'D', key: 'd' },
       { name: 'F', key: 'f' },
-      { name: 'Z', key: 'z' },
-      { name: 'X', key: 'x' },
-      { name: 'C', key: 'c' },
-      { name: '↑ (위쪽 화살표)', key: 'ArrowUp' },
-      { name: '↓ (아래쪽 화살표)', key: 'ArrowDown' }
+      { name: 'Q', key: 'q' },
+      { name: 'W', key: 'w' },
+      { name: 'E', key: 'e' },
+      { name: 'R', key: 'r' },
+      { name: '↑ (위)', key: 'ArrowUp' },
+      { name: '↓ (아래)', key: 'ArrowDown' }
+    ];
+
+    // 빵집 하루 업무 6개 스테이지 (타이밍 tight)
+    const STAGES = [
+      {
+        title: "미션 1: 📦 물류 정리!",
+        time: 3.5,
+        clicks: 40,
+        visual: "📦💥",
+        msg: "재료 상자가도착했습니다! 상자를 정돈하세요!"
+      },
+      {
+        title: "미션 2: 🍞 빵 굽기!",
+        time: 4.0,
+        clicks: 50,
+        visual: "🍞🔥",
+        msg: "오븐 타임! 빵이 타기 전에 꺼내세요!"
+      },
+      {
+        title: "미션 3: ☕ 커피 내리기!",
+        time: 4.5,
+        clicks: 60,
+        visual: "☕💨",
+        msg: "주문 폭주! 샷을 광속으로 추출하세요!"
+      },
+      {
+        title: "미션 4: 🛍️ 빵 포장하기!",
+        time: 3.8,
+        clicks: 50,
+        visual: "🛍️✨",
+        msg: "갓 나온 빵을 빠르게 봉투에 담으세요!"
+      },
+      {
+        title: "미션 5: 💳 손님 계산하기!",
+        time: 5.0,
+        clicks: 70,
+        visual: "💳⚡",
+        msg: "대기 줄이 깁니다! 결제를 신속하게 처리하세요!"
+      },
+      {
+        title: "미션 6: ♻️ 마감 분리수거!",
+        time: 5.5,
+        clicks: 80,
+        visual: "♻️🧹",
+        msg: "마감 시간! 쓰레기와 박스를 정리하세요!"
+      }
     ];
 
     let currentStage = 0;
@@ -129,21 +191,6 @@
     let intervalId = null;
     let timeRemaining = 0;
     let isPlaying = false;
-
-    const STAGES = [
-      {
-        title: "STAGE 1: 떨어지는 휴대폰 잡기! 📱",
-        time: 8.0,
-        clicks: 50,
-        visual: () => `<div class="falling-phone" id="phone">📱</div>`
-      },
-      {
-        title: "STAGE 2: 5초 남은 신호등 건너기! 🚦",
-        time: 12.0,
-        clicks: 100,
-        visual: () => `<div class="traffic-light"><span class="light" style="color:#2ecc71">🟢</span></div> 🚶‍♂️`
-      }
-    ];
 
     function getRandomKeyObj() {
       const idx = Math.floor(Math.random() * CANDIDATE_KEYS.length);
@@ -160,32 +207,23 @@
       timeRemaining = timeLimit;
 
       countInfo.textContent = `남은 횟수: ${remainingClicks}`;
-      visualArea.innerHTML = stage.visual();
+      visualArea.innerHTML = `<span>${stage.visual}</span><div class="alarm-badge">긴급!</div>`;
       
-      // 스테이지마다 무작위 키 1개 지정
+      // 스테이지별 무작위 키 지정
       targetObj = getRandomKeyObj();
       targetKeyDisplay.textContent = targetObj.name;
 
-      message.textContent = `[ ${targetObj.name} ] 키를 제한 시간 안에 ${remainingClicks}번 연타하세요!`;
+      message.textContent = `[ ${targetObj.name} ] 키를 ${timeLimit}초 안에 ${remainingClicks}번 연타!`;
       
       timerFill.style.width = '100%';
 
       clearInterval(intervalId);
-      const updateInterval = 50; // ms
+      const updateInterval = 40; // 40ms 단위 갱신 (부드러운 타이머)
 
       intervalId = setInterval(() => {
         timeRemaining -= (updateInterval / 1000);
         const percent = Math.max(0, (timeRemaining / timeLimit) * 100);
         timerFill.style.width = `${percent}%`;
-
-        // Stage 1 애니메이션
-        if (currentStage === 0) {
-          const phone = document.getElementById('phone');
-          if (phone) {
-            const dropAmount = (1 - (timeRemaining / timeLimit)) * 45;
-            phone.style.transform = `translateY(${dropAmount}px)`;
-          }
-        }
 
         if (timeRemaining <= 0) {
           clearInterval(intervalId);
@@ -195,12 +233,14 @@
     }
 
     function handleKeyPress(e) {
+      // 1. 키를 꾹 누르고 있는 상태(repeat) 방지
+      if (e.repeat) return;
       if (!isPlaying || !targetObj) return;
 
-      // 비교 시 대소문자 차이 흡수 (알파벳 등)
       const inputKey = e.key.toLowerCase();
       const expectedKey = targetObj.key.toLowerCase();
 
+      // 지정된 키와 일치하는지 판별
       if (inputKey === expectedKey) {
         remainingClicks--;
         countInfo.textContent = `남은 횟수: ${remainingClicks}`;
@@ -208,10 +248,10 @@
         if (remainingClicks <= 0) {
           clearInterval(intervalId);
           if (currentStage + 1 < STAGES.length) {
-            message.textContent = "성공! 다음 스테이지로 이동합니다...";
+            message.textContent = "성공! 다음 알림이 울립니다!";
             setTimeout(() => {
               startStage(currentStage + 1);
-            }, 1000);
+            }, 600); // 0.6초 후 다음 미션으로 빠른 전환
           } else {
             gameOver(true);
           }
@@ -224,48 +264,8 @@
       clearInterval(intervalId);
 
       if (isWin) {
-        stageTitle.textContent = "🎉 모든 미션 성공!";
-        message.textContent = "축하합니다! 엄청난 연타 속도로 모든 위기를 탈출했습니다!";
-        visualArea.innerHTML = "🏆✨";
-        targetKeyDisplay.textContent = "CLEAR!";
-      } else {
-        stageTitle.textContent = "💥 미션 실패!";
-        if (currentStage === 0) {
-          message.textContent = "휴대폰이 바닥에 떨어져 산산조각났습니다!";
-          visualArea.innerHTML = "📱💥";
-        } else {
-          message.textContent = "신호등이 빨간불로 바뀌었습니다!";
-          visualArea.innerHTML = "🚦🔴";
-        }
-        targetKeyDisplay.textContent = "FAIL";
-      }
-
-      startBtn.disabled = true;
-      restartBtn.disabled = false;
-      restartBtn.focus();
-    }
-
-    // 이벤트 리스너 등록
-    startBtn.addEventListener('click', () => {
-      isPlaying = true;
-      startBtn.disabled = true;
-      restartBtn.disabled = false;
-      startStage(0);
-    });
-
-    restartBtn.addEventListener('click', () => {
-      isPlaying = true;
-      startStage(0);
-    });
-
-    // 전체 키 입력 이벤트 차단 및 연타 처리
-    window.addEventListener('keydown', (e) => {
-      if (isPlaying) {
-        // F1(도움말), Tab, Space, Enter, Delete 등의 브라우저 기본 동작 차단
-        e.preventDefault();
-        handleKeyPress(e);
-      }
-    });
-  </script>
-</body>
-</html>
+        stageTitle.textContent = "🎉 퇴근 성공!";
+        message.textContent = "완벽합니다! 하루 완판 달성 후 무사히 퇴근했습니다!";
+        visualArea.innerHTML = "🥐💰✨";
+        targetKeyDisplay.textContent = "SUCCESS";
+      } else
