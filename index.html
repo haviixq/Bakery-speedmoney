@@ -3,74 +3,272 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KING 해커톤 · 배포 확인</title>
+  <title>순발력 연타 웹게임</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #eef1eb; color: #17241c; font-family: system-ui, "Malgun Gothic", sans-serif; }
     main { width: min(100%, 720px); padding: clamp(24px, 5vw, 48px); border: 1px solid #00462a; border-radius: 8px; background: white; }
-    .label { margin: 0 0 24px; color: #00462a; font-size: 14px; font-weight: 700; }
-    h1 { margin: 0 0 16px; font-size: clamp(28px, 6vw, 42px); }
-    p { line-height: 1.7; }
-    #stage { display: grid; place-items: center; min-height: 180px; margin: 28px 0 20px; padding: 24px; background: #f3f5f1; border: 1px solid #d8ded7; text-align: center; }
-    #message { margin: 0; }
-    .buttons { display: flex; flex-wrap: wrap; gap: 12px; }
-    button { padding: 12px 20px; border: 1px solid #00462a; border-radius: 4px; background: #00462a; color: white; font: inherit; cursor: pointer; }
+    .label { margin: 0 0 12px; color: #00462a; font-size: 14px; font-weight: 700; }
+    h1 { margin: 0 0 16px; font-size: clamp(24px, 5vw, 36px); }
+    
+    /* 스테이지 및 디스플레이 영역 */
+    #stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; margin: 20px 0; padding: 20px; background: #f3f5f1; border: 1px solid #d8ded7; border-radius: 8px; text-align: center; position: relative; overflow: hidden; }
+    #status-bar { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 12px; }
+    #timer-bar { width: 100%; height: 8px; background: #ddd; margin-bottom: 16px; border-radius: 4px; overflow: hidden; }
+    #timer-fill { height: 100%; width: 100%; background: #e74c3c; transition: width 0.1s linear; }
+
+    /* 모션 비주얼 */
+    .visual-box { height: 80px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; position: relative; margin-bottom: 12px; }
+    .falling-phone { transition: transform 0.1s ease; }
+    .traffic-light { display: flex; gap: 8px; background: #333; padding: 6px 12px; border-radius: 20px; font-size: 24px; }
+    .light { opacity: 0.3; }
+    .light.active { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+
+    /* 키보드 그래픽 */
+    .keyboard-preview { display: flex; flex-direction: column; gap: 6px; background: #222; padding: 12px; border-radius: 8px; margin-top: 10px; }
+    .kb-row { display: flex; gap: 6px; justify-content: center; }
+    .key { width: 36px; height: 36px; background: #444; color: white; display: grid; place-items: center; border-radius: 4px; font-weight: bold; font-size: 14px; border: 1px solid #555; }
+    .key.space { width: 140px; }
+    .key.target { background: #ff9800; color: #000; font-size: 18px; border-color: #e65100; animation: pulse 0.5s infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+    #message { margin: 12px 0 0; font-size: 18px; font-weight: bold; color: #00462a; }
+    
+    .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    button { padding: 12px 20px; border: 1px solid #00462a; border-radius: 4px; background: #00462a; color: white; font: inherit; cursor: pointer; font-weight: bold; }
     #restart { background: white; color: #00462a; }
     button:disabled { opacity: .4; cursor: default; }
-    button:focus-visible { outline: 3px solid #69a58c; outline-offset: 4px; }
-    .guide { margin-top: 28px; padding: 24px; border: 1px solid #d8ded7; background: #f8faf6; }
-    .guide h2 { margin: 0 0 12px; font-size: 22px; }
-    .guide li { margin: 10px 0; line-height: 1.7; }
-    .sheet-link { display: inline-block; margin-top: 8px; padding: 12px 18px; background: #00462a; color: white; border-radius: 4px; text-decoration: none; }
-    .sheet-link:focus-visible { outline: 3px solid #69a58c; outline-offset: 4px; }
-    .note { margin-top: 28px; padding-top: 20px; border-top: 1px solid #d8ded7; color: #68746b; font-size: 14px; }
+
+    .guide { margin-top: 24px; padding: 20px; border: 1px solid #d8ded7; background: #f8faf6; border-radius: 6px; }
+    .guide h2 { margin: 0 0 8px; font-size: 18px; }
+    .guide ul { margin: 0; padding-left: 20px; line-height: 1.6; }
   </style>
 </head>
 <body>
   <main>
-    <p class="label">KING · 바이브코딩 해커톤</p>
-    <!-- 사전 수정 연습: 아래 제목을 원하는 문구로 바꿔 보세요. -->
-    <h1>해커톤 준비 완료</h1>
-    <p>이 화면이 GitHub Pages 공개 주소에서 보이면 배포에 성공한 것입니다.<br>시작 버튼을 눌러 기본 동작도 확인해 주세요.</p>
-    <section id="stage" aria-label="실행 확인 화면" aria-live="polite">
-      <p id="message">시작 버튼을 눌러 주세요.</p>
+    <p class="label">KING · 순발력 키보드 게임</p>
+    <h1>위기 탈출! 순발력 연타 게임</h1>
+    <p>화면에 지정되는 <b>주황색 키</b>를 제한 시간 안에 지정된 횟수만큼 누르세요!</p>
+
+    <section id="stage" aria-label="게임 진행 화면">
+      <div id="status-bar">
+        <span id="stage-title">준비 완료</span>
+        <span id="count-info">남은 횟수: -</span>
+      </div>
+      <div id="timer-bar"><div id="timer-fill"></div></div>
+
+      <!-- 게임 연출 아이콘/애니메이션 -->
+      <div class="visual-box" id="visual-area">
+        <span>🎮</span>
+      </div>
+
+      <!-- 키보드 레이아웃 시각화 -->
+      <div class="keyboard-preview">
+        <div class="kb-row">
+          <div class="key" data-key="Q">Q</div>
+          <div class="key" data-key="W">W</div>
+          <div class="key" data-key="E">E</div>
+          <div class="key" data-key="R">R</div>
+          <div class="key" data-key="T">T</div>
+        </div>
+        <div class="kb-row">
+          <div class="key" data-key="A">A</div>
+          <div class="key" data-key="S">S</div>
+          <div class="key" data-key="D">D</div>
+          <div class="key" data-key="F">F</div>
+          <div class="key" data-key="G">G</div>
+        </div>
+        <div class="kb-row">
+          <div class="key space" data-key=" ">SPACE</div>
+        </div>
+      </div>
+
+      <p id="message">시작 버튼을 눌러 게임을 시작하세요!</p>
     </section>
+
     <div class="buttons">
-      <button id="start" type="button">시작</button>
+      <button id="start" type="button">게임 시작</button>
       <button id="restart" type="button" disabled>다시 시작</button>
     </div>
-    <section class="guide" aria-labelledby="guide-title">
-      <h2 id="guide-title">참가자 정보 사전 입력</h2>
-      <p>정기 모임 전에 GitHub와 Skeam 계정을 만들고, 아래 스프레드시트에 본인 정보를 미리 기재해 주세요.</p>
-      <ol>
-        <li><strong>GitHub 계정:</strong> 계정을 생성하고 이메일 인증을 완료합니다. 공개 저장소를 만들고 이 파일을 GitHub Pages에 배포해 봅니다.</li>
-        <li><strong>Skeam 계정:</strong> 계정을 생성하고 행사에 사용할 기기에서 로그인을 확인합니다.</li>
-        <li><strong>스프레드시트:</strong> 빈 행 하나에 이름, Skeam 닉네임, 참여 여부, 사용할 AI·제작 도구를 입력합니다. 이미 본인 행이 있다면 해당 행을 수정합니다.</li>
-        <li><strong>행사 후 입력:</strong> 작품명과 Skeam 링크를 입력합니다. 아직 만들지 않은 작품 정보와 링크는 비워 두어도 됩니다.</li>
-      </ol>
-      <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/1eLqrOtpMhR3VfCOIV-9_RNtlB1wUtHm_m6aK4ziDUH8/edit?usp=sharing" target="_blank" rel="noopener noreferrer">참가자 정보 입력 시트 열기 ↗</a>
-      <p style="font-size:14px;color:#68746b">다른 참가자의 행은 수정하지 마세요. 비밀번호·API 키는 기재하지 않습니다. 사전 준비·출석·제출 상태·실행 확인은 운영진이 관리합니다.</p>
+
+    <section class="guide">
+      <h2>스테이지 구성</h2>
+      <ul>
+        <li><b>1단계:</b> 떨어지는 휴대폰 잡기 (제한시간 3초 / 키 5회 연타)</li>
+        <li><b>2단계:</b> 5초 남은 신호등 건너기 (제한시간 5초 / 키 10회 연타)</li>
+      </ul>
     </section>
-    <p class="note">이 파일은 배포 연습용 기본 틀입니다. 실제 게임 규칙과 조작은 당일 추가하세요.<br>사전 연습: 제목을 수정해 다시 올린 뒤 공개 페이지에도 반영되는지 확인합니다.</p>
   </main>
+
   <script>
-    // 외부 라이브러리 없이 이 파일 하나로 실행됩니다.
+    // 상태 및 엘리먼트 정의
     const message = document.getElementById('message');
-    const start = document.getElementById('start');
-    const restart = document.getElementById('restart');
-    start.addEventListener('click', () => {
-      message.textContent = '시작 버튼이 정상적으로 작동합니다. 다시 시작 버튼도 확인해 주세요.';
-      start.disabled = true;
-      restart.disabled = false;
-      restart.focus();
+    const startBtn = document.getElementById('start');
+    const restartBtn = document.getElementById('restart');
+    const stageTitle = document.getElementById('stage-title');
+    const countInfo = document.getElementById('count-info');
+    const timerFill = document.getElementById('timer-fill');
+    const visualArea = document.getElementById('visual-area');
+    const keys = document.querySelectorAll('.key');
+
+    const AVAILABLE_KEYS = ['Q', 'W', 'E', 'R', 'T', 'A', 'S', 'D', 'F', 'G', ' '];
+
+    let currentStage = 0;
+    let targetKey = '';
+    let remainingClicks = 0;
+    let timeLimit = 0;
+    let timerId = null;
+    let intervalId = null;
+    let timeRemaining = 0;
+    let isPlaying = false;
+
+    // 스테이지 설정
+    const STAGES = [
+      {
+        title: "STAGE 1: 떨어지는 휴대폰 잡기! 📱",
+        time: 3.0,
+        clicks: 5,
+        visual: () => `<div class="falling-phone" id="phone">📱</div>`
+      },
+      {
+        title: "STAGE 2: 5초 남은 신호등 건너기! 🚦",
+        time: 5.0,
+        clicks: 10,
+        visual: () => `<div class="traffic-light"><span class="light active" style="color:#2ecc71">🟢</span></div> 🚶‍♂️`
+      }
+    ];
+
+    function getRandomKey() {
+      const idx = Math.floor(Math.random() * AVAILABLE_KEYS.length);
+      return AVAILABLE_KEYS[idx];
+    }
+
+    function setTargetKey(key) {
+      targetKey = key;
+      keys.forEach(k => {
+        if (k.dataset.key === targetKey) {
+          k.classList.add('target');
+        } else {
+          k.classList.remove('target');
+        }
+      });
+    }
+
+    function startStage(stageIdx) {
+      currentStage = stageIdx;
+      const stage = STAGES[stageIdx];
+      
+      stageTitle.textContent = stage.title;
+      remainingClicks = stage.clicks;
+      timeLimit = stage.time;
+      timeRemaining = timeLimit;
+
+      countInfo.textContent = `남은 횟수: ${remainingClicks}`;
+      visualArea.innerHTML = stage.visual();
+      
+      const nextKey = getRandomKey();
+      setTargetKey(nextKey);
+
+      message.textContent = `키 [ ${nextKey === ' ' ? 'SPACE' : nextKey} ] 를 빠르게 누르세요!`;
+      
+      // 타이머 시작
+      const updateInterval = 50; // ms
+      timerFill.style.width = '100%';
+
+      clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        timeRemaining -= (updateInterval / 1000);
+        const percent = Math.max(0, (timeRemaining / timeLimit) * 100);
+        timerFill.style.width = `${percent}%`;
+
+        // Stage 1 애니메이션
+        if (currentStage === 0) {
+          const phone = document.getElementById('phone');
+          if (phone) {
+            const dropAmount = (1 - (timeRemaining / timeLimit)) * 40;
+            phone.style.transform = `translateY(${dropAmount}px)`;
+          }
+        }
+
+        if (timeRemaining <= 0) {
+          clearInterval(intervalId);
+          gameOver(false);
+        }
+      }, updateInterval);
+    }
+
+    function handleKeyPress(e) {
+      if (!isPlaying) return;
+
+      const pressedKey = e.key.toUpperCase();
+      if (pressedKey === targetKey || (e.key === ' ' && targetKey === ' ')) {
+        remainingClicks--;
+        countInfo.textContent = `남은 횟수: ${remainingClicks}`;
+
+        if (remainingClicks > 0) {
+          // 다음 입력할 무작위 키 선택
+          setTargetKey(getRandomKey());
+          message.textContent = `키 [ ${targetKey === ' ' ? 'SPACE' : targetKey} ] 를 누르세요!`;
+        } else {
+          // 스테이지 성공
+          clearInterval(intervalId);
+          if (currentStage + 1 < STAGES.length) {
+            message.textContent = "성공! 다음 스테이지로 이동합니다...";
+            setTimeout(() => {
+              startStage(currentStage + 1);
+            }, 1000);
+          } else {
+            gameOver(true);
+          }
+        }
+      }
+    }
+
+    function gameOver(isWin) {
+      isPlaying = false;
+      setTargetKey('');
+      clearInterval(intervalId);
+
+      if (isWin) {
+        stageTitle.textContent = "🎉 미션 완료!";
+        message.textContent = "축하합니다! 휴대폰도 구하고 신호등도 안전하게 건넜습니다!";
+        visualArea.innerHTML = "🏆✨";
+      } else {
+        stageTitle.textContent = "💥 실패!";
+        if (currentStage === 0) {
+          message.textContent = "휴대폰이 바닥에 떨어져 깨졌습니다!";
+          visualArea.innerHTML = "📱💥";
+        } else {
+          message.textContent = "신호등 불이 빨간색으로 바뀌었습니다!";
+          visualArea.innerHTML = "🚦🔴";
+        }
+      }
+
+      startBtn.disabled = true;
+      restartBtn.disabled = false;
+      restartBtn.focus();
+    }
+
+    // 이벤트 리스너 등록
+    startBtn.addEventListener('click', () => {
+      isPlaying = true;
+      startBtn.disabled = true;
+      restartBtn.disabled = false;
+      startStage(0);
     });
-    restart.addEventListener('click', () => {
-      message.textContent = '시작 버튼을 눌러 주세요.';
-      start.disabled = false;
-      restart.disabled = true;
-      start.focus();
+
+    restartBtn.addEventListener('click', () => {
+      isPlaying = true;
+      startStage(0);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      // 스페이스바 누를 때 페이지 스크롤 방지
+      if (e.key === ' ' && isPlaying) {
+        e.preventDefault();
+      }
+      handleKeyPress(e);
     });
   </script>
 </body>
 </html>
-
